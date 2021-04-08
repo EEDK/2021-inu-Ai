@@ -16,4 +16,13 @@ conv3 = nn.Conv2d(1, 1, 5, stride=1, padding=2)
 input3 = torch.Tensor(1, 1, 32, 32)
 out3 = conv3(input3)
 
-print(out3.shape)
+# Ex4 필터사이즈 5 보폭 1 패딩 0
+conv4 = nn.Conv2d(1, 1, 5)
+input4 = torch.Tensor(1, 1, 32, 64)
+out4 = conv4(input4)
+
+# Ex5 필터사이즈 3 보폭 1 패딩 1
+conv5 = nn.Conv2d(1, 1, 5, padding=1)
+input5 = torch.Tensor(1, 1, 64, 32)
+out5 = conv5(input5)
+print(out5.shape)
