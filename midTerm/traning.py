@@ -37,7 +37,7 @@ def activate(weights, inputs):
 
 
 # 순방향 전파 s(x) = 1 / 1 + e(-x)
-def transfer(x):
+def transferNomal(x):
     return 1.0 / (1.0 + math.exp(-x))
 
 
@@ -47,18 +47,18 @@ def forwardPropagate(network, inputs):
         newInput = []
         for net in layer:
             activation = activate(net['weight'], inputs)
-            net['output'] = transfer(activation)
+            net['output'] = transferNomal(activation)
             newInput.append(net['output'])
         inputs = newInput
     return inputs
 
 
 # 에러 체크를 위한 역전파
-def transfer_derivative(x):
+def transferRevere(x):
     return x * (1.0 - x)
 
 # 각 layer에서의 error 계산 및 저장 함수
-def layerErrorCheck(network, output, expeceted):
+def layerErrorCheck(network, expeceted):
     length = len(network)
 
     i = length - 1
