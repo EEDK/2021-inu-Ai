@@ -1,4 +1,4 @@
-#Project 1: implementation of backpropagation /wo torch library
+# Project 1: implementation of backpropagation /wo torch library
 
 torch를 사용하지 않은 딥러닝 예시
 
