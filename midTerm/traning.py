@@ -57,20 +57,70 @@ def forwardPropagate(network, inputs):
 def transferRevere(x):
     return x * (1.0 - x)
 
+
 # 각 layer에서의 error 계산 및 저장 함수
 def layerErrorCheck(network, expeceted):
     length = len(network)
 
     i = length - 1
+    isFirst = True
     while i >= 0:
         layer = network[i]
         errors = list()
 
+        if isFirst:
+            for j in range(len(layer)):
+                neuron = layer[j]
+                errors.append(expeceted[j] - neuron['output'])
+
+            isFirst = False
+
+        else:
+            for j in range(len(layer)):
+                error = 0
+                for neuron in network[i + 1]:
+                    error += (neuron['weight'][j] * neuron['delta'])
+                errors.append(error)
+
+        for j in range(len(layer)):
+            neuron = layer[j]
+            neuron['delta'] = errors[j] * transferRevere(neuron['output'])
+
         i -= 1
 
 
+# weight update 함수 (Learning rate는 자유)
+def updateWeight(network, row, learingRate):
+    for i in range(len(network)):
+        inputs = row[:-1]
+        if i != 0:
+            inputs = [neuron['output'] for neuron in network[i - 1]]
+        for neuron in network[i]:
+            for j in range(len(inputs)):
+                neuron['weight'][j] += learingRate * neuron['delta'] * inputs[j]
+            neuron['weight'][-1] += learingRate * neuron['delta']
+
+
+# Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
+def train_network(network, train, learingRate, Epoch, n_outputs):
+    for epoch in range(Epoch):
+        sum_error = 0
+        for row in train:
+            outputs = forwardPropagate(network, row)
+            expected = [0 for i in range(n_outputs)]
+            expected[row[-1]] = 1
+            sum_error += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
+            layerErrorCheck(network, expected)
+            updateWeight(network, row, learingRate)
+        print('>epoch=%d, lrate=%.3f, error=%.3f' % (epoch, learingRate, sum_error))
+
+
 if __name__ == '__main__':
+    # Test training backprop algorithm
     seed(1)
-    network = MLP2(2, 2, 2)
-    output = forwardPropagate(network, dataset[0])
-    print(network)
+    n_inputs = len(dataset[0]) - 1
+    n_outputs = len(set([row[-1] for row in dataset]))
+    network = MLP2(n_inputs, 2, n_outputs)
+    train_network(network, dataset, 0.5, 20, n_outputs)
+    for layer in network:
+        print(layer)
