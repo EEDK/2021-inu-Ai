@@ -102,25 +102,22 @@ def updateWeight(network, row, learingRate):
 
 
 # Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
-def train_network(network, train, learingRate, Epoch, n_outputs):
+def trainNetwork(network, train, learingRate, Epoch, n_outputs):
     for epoch in range(Epoch):
-        sum_error = 0
+        sumError = 0
         for row in train:
             outputs = forwardPropagate(network, row)
             expected = [0 for i in range(n_outputs)]
             expected[row[-1]] = 1
-            sum_error += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
+            sumError += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
             layerErrorCheck(network, expected)
             updateWeight(network, row, learingRate)
-        print('>epoch=%d, lrate=%.3f, error=%.3f' % (epoch, learingRate, sum_error))
+
+        print('epoch=%d, error=%.3f' % (epoch, sumError))
 
 
-if __name__ == '__main__':
-    # Test training backprop algorithm
-    seed(1)
-    n_inputs = len(dataset[0]) - 1
-    n_outputs = len(set([row[-1] for row in dataset]))
-    network = MLP2(n_inputs, 2, n_outputs)
-    train_network(network, dataset, 0.5, 20, n_outputs)
-    for layer in network:
-        print(layer)
+# Test training backprop algorithm
+seed(1)
+network = MLP2(2, 2, 2)
+
+trainNetwork(network, dataset, 0.5, 20, 2)
