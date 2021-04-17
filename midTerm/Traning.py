@@ -36,20 +36,20 @@ def activate(weights, inputs):
     return activation
 
 
-# 순방향 전파 s(x) = 1 / 1 + e(-x)
+# 순방향 전파, 시그모이드 = s(x) = e(x) / 1 + e(x)
 def transferNomal(x):
-    return 1.0 / (1.0 + math.exp(-x))
+    return math.exp(x) / (1.0 + math.exp(x))
 
 
 # 순방향 전파 함수
 def forwardPropagate(network, inputs):
     for layer in network:
-        newInput = []
+        updateInput = []
         for net in layer:
             activation = activate(net['weight'], inputs)
             net['output'] = transferNomal(activation)
-            newInput.append(net['output'])
-        inputs = newInput
+            updateInput.append(net['output'])
+        inputs = updateInput
     return inputs
 
 
@@ -58,12 +58,12 @@ def transferRevere(x):
     return x * (1.0 - x)
 
 
-# 각 layer에서의 error 계산 및 저장 함수
+# 각 layer error 계산 및 저장 함수
 def layerErrorCheck(network, expeceted):
     length = len(network)
-
-    i = length - 1
     isFirst = True
+    i = length - 1
+
     while i >= 0:
         layer = network[i]
         errors = list()
@@ -89,7 +89,7 @@ def layerErrorCheck(network, expeceted):
         i -= 1
 
 
-# weight update 함수 (Learning rate는 자유)
+# weight update 함수 (Learning rate 자유)
 def updateWeight(network, row, learingRate):
     for i in range(len(network)):
         inputs = row[:-1]
@@ -103,21 +103,24 @@ def updateWeight(network, row, learingRate):
 
 # Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
 def trainNetwork(network, train, learingRate, Epoch, n_outputs):
-    for epoch in range(Epoch):
+    for i in range(Epoch):
         sumError = 0
         for row in train:
             outputs = forwardPropagate(network, row)
             expected = [0 for i in range(n_outputs)]
             expected[row[-1]] = 1
+
             sumError += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
             layerErrorCheck(network, expected)
             updateWeight(network, row, learingRate)
 
-        print('epoch=%d, error=%.3f' % (epoch, sumError))
+        print('epoch=%d, error=%.3f' % (i, sumError))
 
 
-# Test training backprop algorithm
+# Test training algorithm
 seed(1)
 network = MLP2(2, 2, 2)
 
+
 trainNetwork(network, dataset, 0.5, 20, 2)
+print(network)

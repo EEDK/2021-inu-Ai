@@ -2,6 +2,9 @@
 
 torch를 사용하지 않은 딥러닝 예시
 
+![img.png](img.png)
+![img_1.png](img_1.png)
+
 Training을 위한 파일 
 - 네트워크 구성 및 weight initialization 함수
 - weight summation 및 activation 함수
@@ -25,3 +28,7 @@ Test 를 위한 파일
  - 각 변수를 입력 dataset과 output class가 변함에 따라 적용될 수 있도록 구현하였는가?
  - ReLu로 activation을 바꾸고 동작하는가? 
  - ReLu로 바꿨을 경우 성능이 차이난다면 그 이유는 무엇인가?
+
+참고문헌:
+- https://towardsdatascience.com/back-propagation-demystified-in-7-minutes-4294d71a04d7
+- https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
