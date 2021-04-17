@@ -122,5 +122,5 @@ seed(1)
 network = MLP2(2, 2, 2)
 
 
-trainNetwork(network, dataset, 0.5, 20, 2)
+trainNetwork(network, dataset, 0.7, 20, 2)
 print(network)
