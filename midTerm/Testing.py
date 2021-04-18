@@ -39,9 +39,18 @@ def FrontPropagatation(network, row):
 
 
 # 예상결과 출력
-def predict(network, expected):
+def Predict(network, expected):
     outputs = FrontPropagatation(network, expected)
-    return outputs.index(max(outputs))
+
+    tmp = outputs[0]
+    idx = 0
+
+    for i in range(len(outputs)):
+        if(outputs[i] > tmp):
+            tmp = outputs[i]
+            idx = i
+
+    return idx
 
 
 # 결과값
@@ -71,5 +80,5 @@ if __name__ == '__main__':
                     'output': 0.8921826210922317, 'gradient': 0.010371254672341035}]]
 
     for data in dataset:
-        prediction = predict(network, data)
-        print('Expected=%d, Got=%d' % (data[2], prediction))
+        prediction = Predict(network, data)
+        print('Expected=%d, Actual=%d' % (data[2], prediction))
