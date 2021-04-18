@@ -31,4 +31,4 @@ Test 를 위한 파일
 
 참고문헌:
 - https://towardsdatascience.com/back-propagation-demystified-in-7-minutes-4294d71a04d7
-- https://machinelearningmastery.com/implement-backpropagation-algorithm-scratch-python/
+- https://yonghyuc.wordpress.com/2019/09/10/backpropagation-weight-update/

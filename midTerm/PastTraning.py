@@ -2,27 +2,6 @@ from random import random
 from random import seed
 import math
 
-'''
-# Relu 사용을 위한 내용
-import numpy as np
-
-
-# ReLU 함수 선언
-def relu(x):
-    return np.maximum(0, x)
-
-
-# ReLU 미분 함수 선언
-def relu_(x):
-    result = []
-    for i in x:
-        if (i >= 0):
-            result.append(1)
-        else:
-            result.append(0)
-    return result
-'''
-
 dataset = [
     [3.5064385449265267, 2.34547092892632525, 0],
     [4.384621956392097, 3.4530853889904205, 0],
@@ -50,104 +29,101 @@ def MLP2(input, hidden, output):
     return net
 
 
-# Sigmoid 함수 1 / 1 + exp(-x)
-def Sigmoid(x):
-    return 1.0 / (1.0 + math.exp(-x))
-
-
-# Weight Summary 과정 sum(w * i) + bias
-def WeightSummation(weights, inputs):
-    activation = 0.0
-    bias = weights[-1]
+# weight summary 과정
+def activate(weights, inputs):
+    activation = weights[len(weights) - 1]
 
     for i in range(len(weights) - 1):
         activation += weights[i] * inputs[i]
 
-    activation += bias
 
     return activation
 
 
+# 순방향 전파, 시그모이드 = s(x) = e(x) / 1 + e(x)
+def transferNormal(x):
+    return math.exp(x) / (1.0 + math.exp(x))
+
+
 # 순방향 전파 함수
-def FrontPropagatation(network, row):
-    inputs = row
-
+def forwardPropagate(network, inputs):
     for layer in network:
-        newInputs = []
-
-        for neuron in layer:
-            result = WeightSummation(neuron['weight'], inputs)
-            neuron['output'] = Sigmoid(result)
-            # neuron['output'] = Relu(result)
-            newInputs.append(neuron['output'])
-
-        inputs = newInputs
-
-    return newInputs
+        updateInput = []
+        for net in layer:
+            activation = activate(net['weight'], inputs)
+            net['output'] = transferNormal(activation)
+            updateInput.append(net['output'])
+        inputs = updateInput
+    return inputs
 
 
-def TransferDerivative(x):
+# 에러 체크를 위한 역전파
+def transferRevere(x):
     return x * (1.0 - x)
 
 
-# each layer error 계산 및 저장 함수
-def Backpropagation(network, expected):
-    i = len(network) - 1
+# 각 layer error 계산 및 저장 함수
+def layerErrorCheck(network, expeceted):
+    length = len(network)
+    isFirst = True
+    i = length - 1
 
-    # 역전파를 위해 i는 거꾸로 이동
     while i >= 0:
         layer = network[i]
         errors = list()
 
-        if i == len(network) - 1:
+        if isFirst:
             for j in range(len(layer)):
                 neuron = layer[j]
-                errors.append(expected[j] - neuron['output'])
+                errors.append(expeceted[j] - neuron['output'])
+
+            isFirst = False
 
         else:
             for j in range(len(layer)):
-                error = 0.0
+                error = 0
                 for neuron in network[i + 1]:
-                    error += (neuron['weight'][j] * neuron['gradient'])
+                    error += (neuron['weight'][j] * neuron['delta'])
                 errors.append(error)
 
         for j in range(len(layer)):
             neuron = layer[j]
-            neuron['gradient'] = errors[j] * TransferDerivative(neuron['output'])
+            neuron['delta'] = errors[j] * transferRevere(neuron['output'])
 
         i -= 1
 
 
-# Weight 업데이트
-def UpdateWeight(network, row, learingRate):
+# weight update 함수 (Learning rate 자유)
+def updateWeight(network, row, learingRate):
     for i in range(len(network)):
         inputs = row[:-1]
         if i != 0:
             inputs = [neuron['output'] for neuron in network[i - 1]]
+
         for neuron in network[i]:
             for j in range(len(inputs)):
-                neuron['weight'][j] += learingRate * neuron['gradient'] * inputs[j]
-            neuron['weight'][-1] += learingRate * neuron['gradient']
+                neuron['weight'][j] += learingRate * neuron['delta'] * inputs[j]
+            neuron['weight'][-1] += learingRate * neuron['delta']
 
 
 # Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
-def TrainNetwork(network, train, learingRate, Epoch, outputNum):
+def trainNetwork(network, train, learingRate, Epoch, n_outputs):
     for i in range(Epoch):
         sumError = 0
         for row in train:
-            outputs = FrontPropagatation(network, row)
-            expected = [0 for i in range(outputNum)]
+            outputs = forwardPropagate(network, row)
+            expected = [0 for i in range(n_outputs)]
             expected[row[-1]] = 1
 
             sumError += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
 
-            Backpropagation(network, expected)
-            UpdateWeight(network, row, learingRate)
+            layerErrorCheck(network, expected)
+            updateWeight(network, row, learingRate)
 
-        print('epoch=%d, error=%f' % (i + 1, sumError))
+        print('epoch=%d, error=%.3f' % (i + 1, sumError))
 
 
-#  각 변수를 입력 dataset 과 outputClass 가 변함에 따라 적용될 수 있도록 구현하였는가? - i_num, h_num, o_num 에 따라 변경됨
+#  각 변수를 입력 dataset과 output class가 변함에 따라 적용될 수 있도록 구현하였는가? - i_num, h_num, o_num에 따라 변경됨
 if __name__ == '__main__':
     seed(1)
 
@@ -156,5 +132,7 @@ if __name__ == '__main__':
     o_num = int(input('output num : '))
 
     network = MLP2(i_num, h_num, o_num)
-    TrainNetwork(network, dataset, learingRate=1.0, Epoch=50, outputNum=o_num)
+
+    trainNetwork(network, dataset, learingRate=0.7, Epoch=50, n_outputs=o_num)
     print('network = ', network)
+
