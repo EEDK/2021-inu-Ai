@@ -57,6 +57,7 @@ def Predict(network, expected):
 
 if __name__ == '__main__':
     seed(1)
+    # dataset -> {input1, input2, expected}
     dataset = [
         [3.5064385449265267, 2.34547092892632525, 0],
         [4.384621956392097, 3.4530853889904205, 0],
@@ -81,4 +82,4 @@ if __name__ == '__main__':
 
     for data in dataset:
         prediction = Predict(network, data)
-        print('Expected=%d, Actual=%d' % (data[2], prediction))
+        print('예상=%d, 정답=%d' % (data[-1], prediction))

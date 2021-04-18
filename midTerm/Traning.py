@@ -2,27 +2,13 @@ from random import random
 from random import seed
 import math
 
-'''
-# Relu 사용을 위한 내용
-import numpy as np
+# import numpy as np
+# # ReLU 함수 선언
+# def relu(x):
+#     return np.maximum(0, x)
 
 
-# ReLU 함수 선언
-def relu(x):
-    return np.maximum(0, x)
-
-
-# ReLU 미분 함수 선언
-def relu_(x):
-    result = []
-    for i in x:
-        if (i >= 0):
-            result.append(1)
-        else:
-            result.append(0)
-    return result
-'''
-
+# dataset -> {input1, input2, expected}
 dataset = [
     [3.5064385449265267, 2.34547092892632525, 0],
     [4.384621956392097, 3.4530853889904205, 0],
@@ -78,7 +64,7 @@ def FrontPropagatation(network, row):
         for neuron in layer:
             result = WeightSummation(neuron['weight'], inputs)
             neuron['output'] = Sigmoid(result)
-            # neuron['output'] = Relu(result)
+            # neuron['output'] = relu(result)
             newInputs.append(neuron['output'])
 
         inputs = newInputs
@@ -131,10 +117,10 @@ def UpdateWeight(network, row, learingRate):
 
 
 # Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
-def TrainNetwork(network, train, learingRate, Epoch, outputNum):
+def TrainNetwork(network, data, learingRate, Epoch, outputNum):
     for i in range(Epoch):
         sumError = 0
-        for row in train:
+        for row in data:
             outputs = FrontPropagatation(network, row)
             expected = [0 for i in range(outputNum)]
             expected[row[-1]] = 1
