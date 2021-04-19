@@ -21,7 +21,7 @@ def WeightSummation(weights, inputs):
 
 
 # 순방향 전파 함수
-def FrontPropagatation(network, row):
+def FrontPropagation(network, row):
     inputs = row
 
     for layer in network:
@@ -40,7 +40,7 @@ def FrontPropagatation(network, row):
 
 # 예상결과 출력
 def Predict(network, expected):
-    outputs = FrontPropagatation(network, expected)
+    outputs = FrontPropagation(network, expected)
 
     tmp = outputs[0]
     idx = 0

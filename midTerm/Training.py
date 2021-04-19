@@ -2,12 +2,6 @@ from random import random
 from random import seed
 import math
 
-# import numpy as np
-# # ReLU 함수 선언
-# def relu(x):
-#     return np.maximum(0, x)
-
-
 # dataset -> {input1, input2, expected}
 dataset = [
     [3.5064385449265267, 2.34547092892632525, 0],
@@ -41,6 +35,10 @@ def Sigmoid(x):
     return 1.0 / (1.0 + math.exp(-x))
 
 
+def Sigmoid_Diff(x):
+    return x * (1.0 - x)
+
+
 # Weight Summary 과정 sum(w * i) + bias
 def WeightSummation(weights, inputs):
     activation = 0.0
@@ -55,7 +53,7 @@ def WeightSummation(weights, inputs):
 
 
 # 순방향 전파 함수
-def FrontPropagatation(network, row):
+def FrontPropagation(network, row):
     inputs = row
 
     for layer in network:
@@ -72,12 +70,8 @@ def FrontPropagatation(network, row):
     return newInputs
 
 
-def TransferDerivative(x):
-    return x * (1.0 - x)
-
-
 # each layer error 계산 및 저장 함수
-def Backpropagation(network, expected):
+def BackPropagation(network, expected):
     i = len(network) - 1
 
     # 역전파를 위해 i는 거꾸로 이동
@@ -99,7 +93,7 @@ def Backpropagation(network, expected):
 
         for j in range(len(layer)):
             neuron = layer[j]
-            neuron['gradient'] = errors[j] * TransferDerivative(neuron['output'])
+            neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
 
         i -= 1
 
@@ -117,20 +111,20 @@ def UpdateWeight(network, row, learingRate):
 
 
 # Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
-def TrainNetwork(network, data, learingRate, Epoch, outputNum):
+def TrainingNetwork(network, data, learingRate, Epoch, outputNum):
     for i in range(Epoch):
         sumError = 0
         for row in data:
-            outputs = FrontPropagatation(network, row)
+            outputs = FrontPropagation(network, row)
             expected = [0 for i in range(outputNum)]
             expected[row[-1]] = 1
 
             sumError += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
 
-            Backpropagation(network, expected)
+            BackPropagation(network, expected)
             UpdateWeight(network, row, learingRate)
 
-        print('epoch=%d, error=%f' % (i + 1, sumError))
+        print('시도횟수=%d, error=%f' % (i + 1, sumError))
 
 
 #  각 변수를 입력 dataset 과 outputClass 가 변함에 따라 적용될 수 있도록 구현하였는가? - i_num, h_num, o_num 에 따라 변경됨
@@ -142,5 +136,5 @@ if __name__ == '__main__':
     o_num = int(input('output num : '))
 
     network = MLP2(i_num, h_num, o_num)
-    TrainNetwork(network, dataset, learingRate=1.0, Epoch=50, outputNum=o_num)
+    TrainingNetwork(network, dataset, learingRate=1.0, Epoch=50, outputNum=o_num)
     print('network = ', network)
