@@ -30,7 +30,6 @@ def FrontPropagation(network, row):
         for neuron in layer:
             result = WeightSummation(neuron['weight'], inputs)
             neuron['output'] = Sigmoid(result)
-            # neuron['output'] = Relu(result)
             newInputs.append(neuron['output'])
 
         inputs = newInputs
@@ -38,7 +37,7 @@ def FrontPropagation(network, row):
     return newInputs
 
 
-# 예상결과 출력
+# 예측값 구하는 함수
 def Predict(network, expected):
     outputs = FrontPropagation(network, expected)
 
@@ -46,11 +45,28 @@ def Predict(network, expected):
     idx = 0
 
     for i in range(len(outputs)):
-        if(outputs[i] > tmp):
+        if (outputs[i] > tmp):
             tmp = outputs[i]
             idx = i
 
     return idx
+
+
+# 예측값과 정답을 비교하는 함수
+def PrintAccuracy(dataset):
+    epoch = 0
+    correct = 0
+
+    for data in dataset:
+        prediction = Predict(network, data)
+        print('예상=%d, 정답=%d' % (data[-1], prediction))
+        epoch += 1
+
+        if prediction == data[-1]:
+            correct += 1
+
+    accuracy = (correct / epoch) * 100.0
+    print('적중률 :%d%%' %(accuracy))
 
 
 # 결과값
@@ -80,6 +96,4 @@ if __name__ == '__main__':
                    {'weight': [-3.7409552295133306, 4.209038698065864, 1.7141636291371203],
                     'output': 0.8921826210922317, 'gradient': 0.010371254672341035}]]
 
-    for data in dataset:
-        prediction = Predict(network, data)
-        print('예상=%d, 정답=%d' % (data[-1], prediction))
+    PrintAccuracy(dataset)

@@ -38,12 +38,14 @@ def Sigmoid(x):
 def Sigmoid_Diff(x):
     return x * (1.0 - x)
 
-# Relu 함수
+
+# Relu 함수 -> x > 0 그대로 리턴 else 0.0
 def Relu(x):
     if x > 0:
         return x
     else:
         return 0.0
+
 
 def Relu_diff(x):
     if x > 0:
@@ -74,8 +76,8 @@ def FrontPropagation(network, row):
 
         for neuron in layer:
             result = WeightSummation(neuron['weight'], inputs)
-            # neuron['output'] = Sigmoid(result)
-            neuron['output'] = Relu(result)
+            neuron['output'] = Sigmoid(result)
+            # neuron['output'] = Relu(result)
             newInputs.append(neuron['output'])
 
         inputs = newInputs
@@ -106,27 +108,26 @@ def BackPropagation(network, expected):
 
         for j in range(len(layer)):
             neuron = layer[j]
-            # neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
-            neuron['gradient'] = errors[j] * Relu_diff(neuron['output'])
-
+            neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
+            # neuron['gradient'] = errors[j] * Relu_diff(neuron['output'])
 
         i -= 1
 
 
 # Weight 업데이트
-def UpdateWeight(network, row, learingRate):
+def UpdateWeight(network, row, learningRate):
     for i in range(len(network)):
         inputs = row[:-1]
         if i != 0:
             inputs = [neuron['output'] for neuron in network[i - 1]]
         for neuron in network[i]:
             for j in range(len(inputs)):
-                neuron['weight'][j] += learingRate * neuron['gradient'] * inputs[j]
-            neuron['weight'][-1] += learingRate * neuron['gradient']
+                neuron['weight'][j] += learningRate * neuron['gradient'] * inputs[j]
+            neuron['weight'][-1] += learningRate * neuron['gradient']
 
 
 # Epoch (시행횟수)를 입력 중 하나로 받는 전체 training 함수 (시행횟수 자유)
-def TrainingNetwork(network, data, learingRate, Epoch, outputNum):
+def TrainingNetwork(network, data, learningRate, Epoch, outputNum):
     for i in range(Epoch):
         sumError = 0
         for row in data:
@@ -137,7 +138,7 @@ def TrainingNetwork(network, data, learingRate, Epoch, outputNum):
             sumError += sum([(expected[i] - outputs[i]) ** 2 for i in range(len(expected))])
 
             BackPropagation(network, expected)
-            UpdateWeight(network, row, learingRate)
+            UpdateWeight(network, row, learningRate)
 
         print('시도횟수=%d, error=%f' % (i + 1, sumError))
 
@@ -151,5 +152,5 @@ if __name__ == '__main__':
     o_num = int(input('output num : '))
 
     network = MLP2(i_num, h_num, o_num)
-    TrainingNetwork(network, dataset, learingRate=1.0, Epoch=50, outputNum=o_num)
+    TrainingNetwork(network, dataset, learningRate=1.0, Epoch=50, outputNum=o_num)
     print('network = ', network)
