@@ -38,6 +38,19 @@ def Sigmoid(x):
 def Sigmoid_Diff(x):
     return x * (1.0 - x)
 
+# Relu 함수
+def Relu(x):
+    if x > 0:
+        return x
+    else:
+        return 0.0
+
+def Relu_diff(x):
+    if x > 0:
+        return 1.0
+    else:
+        return x
+
 
 # Weight Summary 과정 sum(w * i) + bias
 def WeightSummation(weights, inputs):
@@ -61,8 +74,8 @@ def FrontPropagation(network, row):
 
         for neuron in layer:
             result = WeightSummation(neuron['weight'], inputs)
-            neuron['output'] = Sigmoid(result)
-            # neuron['output'] = relu(result)
+            # neuron['output'] = Sigmoid(result)
+            neuron['output'] = Relu(result)
             newInputs.append(neuron['output'])
 
         inputs = newInputs
@@ -93,7 +106,9 @@ def BackPropagation(network, expected):
 
         for j in range(len(layer)):
             neuron = layer[j]
-            neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
+            # neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
+            neuron['gradient'] = errors[j] * Relu_diff(neuron['output'])
+
 
         i -= 1
 
