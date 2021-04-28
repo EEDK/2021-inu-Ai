@@ -40,9 +40,9 @@ linear3 = torch.nn.Linear(256, 10, bias=True)
 relu = torch.nn.ReLU()
 
 # Initialization
-torch.nn.init.normal_(linear1.weight)
-torch.nn.init.normal_(linear2.weight)
-torch.nn.init.normal_(linear3.weight)
+torch.nn.init.xavier_uniform_(linear1.weight)
+torch.nn.init.xavier_uniform_(linear2.weight)
+torch.nn.init.xavier_uniform_(linear3.weight)
 
 # model
 model = torch.nn.Sequential(linear1, relu, linear2, relu, linear3).to(device)
