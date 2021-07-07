@@ -51,7 +51,26 @@ def Relu_diff(x):
     if x > 0:
         return 1.0
     else:
+        return 0.0
+
+
+# ELU 함수로 개선
+def ELU(x):
+    alpha = 0.01
+
+    if x > 0:
         return x
+    else:
+        return alpha * (math.exp(x) - 1)
+
+
+def ELU_diff(x):
+    alpha = 0.01
+
+    if x > 0:
+        return 1.0
+    else:
+        return alpha * (math.exp(x))
 
 
 # Weight Summary 과정 sum(w * i) + bias
@@ -75,15 +94,16 @@ def FrontPropagation(network, row):
         newInputs = []
 
         for neuron in layer:
-            result = WeightSummation(neuron['weight'], inputs)
+            result = 0.5 * WeightSummation(neuron['weight'], inputs)
             neuron['output'] = Sigmoid(result)
             # neuron['output'] = Relu(result)
+            # neuron['output'] = ELU(result)
+
             newInputs.append(neuron['output'])
 
         inputs = newInputs
 
     return newInputs
-
 
 # each layer error 계산 및 저장 함수
 def BackPropagation(network, expected):
@@ -110,9 +130,39 @@ def BackPropagation(network, expected):
             neuron = layer[j]
             neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
             # neuron['gradient'] = errors[j] * Relu_diff(neuron['output'])
+            # neuron['gradient'] = errors[j] * ELU_diff(neuron['output'])
 
         i -= 1
 
+
+# 제출함수
+def backward_propagate_error(network, expected):
+    i = len(network) - 1
+
+    # 역전파를 위해 i는 거꾸로 이동
+    while i >= 0:
+        layer = network[i]
+        errors = list()
+
+        if i == len(network) - 1:
+            for j in range(len(layer)):
+                neuron = layer[j]
+                errors.append(expected[j] - neuron['output'])
+
+        else:
+            for j in range(len(layer)):
+                error = 0.0
+                for neuron in network[i + 1]:
+                    error += (neuron['weight'][j] * neuron['gradient'])
+                errors.append(error)
+
+        for j in range(len(layer)):
+            neuron = layer[j]
+            neuron['gradient'] = errors[j] * Sigmoid_Diff(neuron['output'])
+            # neuron['gradient'] = errors[j] * Relu_diff(neuron['output'])
+            # neuron['gradient'] = errors[j] * ELU_diff(neuron['output'])
+
+        i -= 1
 
 # Weight 업데이트
 def UpdateWeight(network, row, learningRate):
@@ -151,6 +201,7 @@ if __name__ == '__main__':
     h_num = int(input('hidden num : '))
     o_num = int(input('output num : '))
 
-    network = MLP2(i_num, h_num, o_num)
-    TrainingNetwork(network, dataset, learningRate=1.0, Epoch=50, outputNum=o_num)
-    print('network = ', network)
+
+    nn = MLP2(i_num, h_num, o_num)
+    output = FrontPropagation(nn, dataset[0])
+    print(output)
